@@ -1,0 +1,5 @@
+../Core/Src/easybut.c:10:19:EASYBUT_Init	16	static
+../Core/Src/easybut.c:22:9:EASYBUT_GPIO_Check	16	static
+../Core/Src/easybut.c:37:9:EASYBUT_Data_Check	16	static
+../Core/Src/easybut.c:50:9:EASYBUT_ButtonStat	16	static
+../Core/Src/easybut.c:67:6:EASYBUT_Handler	16	static
