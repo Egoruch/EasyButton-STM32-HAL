@@ -1,5 +1,12 @@
-../Core/Src/easybut.c:10:19:EASYBUT_Init	16	static
-../Core/Src/easybut.c:22:9:EASYBUT_GPIO_Check	16	static
-../Core/Src/easybut.c:37:9:EASYBUT_Data_Check	16	static
-../Core/Src/easybut.c:50:9:EASYBUT_ButtonStat	16	static
-../Core/Src/easybut.c:67:6:EASYBUT_Handler	16	static
+../Core/Src/easybut.c:12:6:EASYBUT_InitButton	16	static
+../Core/Src/easybut.c:26:9:EASYBUT_getPinState	16	static
+../Core/Src/easybut.c:44:6:EASYBUT_setPrevState	16	static
+../Core/Src/easybut.c:53:9:EASYBUT_getPrevState	16	static
+../Core/Src/easybut.c:62:6:EASYBUT_setButPressed	16	static
+../Core/Src/easybut.c:67:6:EASYBUT_setButNotPressed	16	static
+../Core/Src/easybut.c:77:6:EASYBUT_setCounter	16	static
+../Core/Src/easybut.c:86:10:EASYBUT_getCounter	16	static
+../Core/Src/easybut.c:95:9:EASYBUT_getPrevStat	16	static
+../Core/Src/easybut.c:110:9:EASYBUT_getStatData	16	static
+../Core/Src/easybut.c:125:9:EASYBUT_getButtonState	16	static
+../Core/Src/easybut.c:138:6:EASYBUT_Handler	16	static

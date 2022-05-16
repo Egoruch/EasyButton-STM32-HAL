@@ -138,7 +138,9 @@ int main(void)
   HAL_TIM_PWM_Start(&htim11, TIM_CHANNEL_1);
   __HAL_TIM_SET_COMPARE(&htim11, TIM_CHANNEL_1, 0);
 
-  EASYBUT_Init(0, SA2_BUT_GPIO_Port, SA2_BUT_Pin);
+  EASYBUT_InitButton(BUT_SA1, SA1_BUT_GPIO_Port, SA1_BUT_Pin);
+  EASYBUT_InitButton(BUT_SA2, SA2_BUT_GPIO_Port, SA2_BUT_Pin);
+  EASYBUT_InitButton(BUT_WKUP, WKUP_GPIO_Port, WKUP_Pin);
 
 
   /* USER CODE END 2 */
@@ -678,16 +680,26 @@ void StartButtonTask(void *argument)
   for(;;)
   {
 
+
 	  EASYBUT_Handler();
 
-	  if(EASYBUT_ButtonStat(0))
-	  {
-		  __HAL_TIM_SET_COMPARE(&htim11, TIM_CHANNEL_1, 500);
 
-	  }else{
+	  // WORKS
+	  static uint8_t toggle = 0;
+	  if(EASYBUT_getButtonState(BUT_SA2))
+	  {
+		  toggle = ~toggle;
+	  }
+
+	  if(toggle){
+		  __HAL_TIM_SET_COMPARE(&htim11, TIM_CHANNEL_1, 500);
+	  }
+	  else{
 		  __HAL_TIM_SET_COMPARE(&htim11, TIM_CHANNEL_1, 0);
 
 	  }
+
+
 
     osDelay(1);
   }
