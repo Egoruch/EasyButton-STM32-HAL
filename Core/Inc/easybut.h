@@ -23,20 +23,25 @@ typedef enum ButtonName
 
 /****************************************************/
 
-#define EASYBUT_DEBOUNCE_TIME 50 /* 50 ms, if call EASYBUT_Handler every 1 ms */
+#define EASYBUT_SHORT_PRESS 50 /* 50 ms, if call EASYBUT_Handler every 1 ms */
+#define EASYBUT_LONG_PRESS 500 /* ms */
 #define PIN_QUANTITY BUT_QUANTITY
+
 
 /* Typedef BEGIN */
 typedef enum ButtonStat
 {
-	BUT_PRESSED,
-	BUT_NOTPRESSED
+	BUT_NOT_PRESSED = 0, // don't modify that, because default value is 0
+	BUT_SHORT_PRESS,
+	BUT_LONG_PRESS,
+	BUT_DOWN,
+	BUT_POLLED
 }butstat_t;
 
 typedef enum ButtonRaw
 {
-	NowIsPressed,
-	NowIsNotPressed
+	NowIsNotPressed,
+	NowIsPressed
 }butraw_t;
 
 typedef struct ButtonPins
@@ -47,7 +52,8 @@ typedef struct ButtonPins
   butraw_t      ButRawStat;
 
   uint16_t		ButCounter;
-  uint8_t		ButPrevStat;
+  butraw_t		ButPrevStat;
+  uint8_t		ButLongFlag;
 }but_pin_s;
 
 /* Typedef END */
@@ -57,7 +63,7 @@ typedef struct ButtonPins
 /* Function Prototypes BEGIN */
 
 void EASYBUT_InitButton(uint8_t pin_num, GPIO_TypeDef *gpio_port, uint16_t gpio_pin);
-uint8_t EASYBUT_getButtonState(uint8_t butnum);
+uint8_t EASYBUT_getButtonState(butname_t butname, butstat_t butstat);
 void EASYBUT_Handler(void);
 
 /* Function Prototypes END */

@@ -684,22 +684,45 @@ void StartButtonTask(void *argument)
 	  EASYBUT_Handler();
 
 
+
+	  // WORKS
+	  	  if(EASYBUT_getButtonState(BUT_SA2, BUT_LONG_PRESS)){
+	  		__HAL_TIM_SET_COMPARE(&htim11, TIM_CHANNEL_1, 500);
+	  	  }
+
+	  	  if(EASYBUT_getButtonState(BUT_SA2, BUT_SHORT_PRESS)){
+	  		__HAL_TIM_SET_COMPARE(&htim11, TIM_CHANNEL_1, 0);
+	  	  }
+
 	  // WORKS
 	  static uint8_t toggle = 0;
-	  if(EASYBUT_getButtonState(BUT_SA2))
+	  if(EASYBUT_getButtonState(BUT_SA2, BUT_SHORT_PRESS))
 	  {
 		  toggle = ~toggle;
+
+		  if(toggle){
+			  __HAL_TIM_SET_COMPARE(&htim11, TIM_CHANNEL_1, 500);
+		  }
+		  else{
+			  __HAL_TIM_SET_COMPARE(&htim11, TIM_CHANNEL_1, 0);
+
+		  }
 	  }
 
-	  if(toggle){
-		  __HAL_TIM_SET_COMPARE(&htim11, TIM_CHANNEL_1, 500);
-	  }
-	  else{
-		  __HAL_TIM_SET_COMPARE(&htim11, TIM_CHANNEL_1, 0);
-
-	  }
-
-
+//
+//	  static uint8_t toggle2 = 0;
+//	  if(EASYBUT_getButtonState(BUT_SA1, BUT_LONG_PRESS))
+//	  {
+//		  toggle2 = ~toggle2;
+//
+//		  if(toggle2){
+//			  __HAL_TIM_SET_COMPARE(&htim11, TIM_CHANNEL_1, 500);
+//		  }
+//		  else{
+//			  __HAL_TIM_SET_COMPARE(&htim11, TIM_CHANNEL_1, 0);
+//
+//		  }
+//	  }
 
     osDelay(1);
   }

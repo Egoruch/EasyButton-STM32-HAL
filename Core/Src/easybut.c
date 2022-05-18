@@ -23,15 +23,15 @@ void EASYBUT_InitButton(butname_t but_name, GPIO_TypeDef *gpio_port, uint16_t gp
  * @param  pointer to structure
  * @retval true - pressed, false - not pressed
  */
-uint8_t EASYBUT_getPinState(but_pin_s *bp) {
+butraw_t EASYBUT_getPinState(but_pin_s *bp) {
 	if (HAL_GPIO_ReadPin(bp->ButPort, bp->ButPin) == GPIO_PIN_RESET) {
 		bp->ButRawStat = NowIsPressed;
 
-		return 1;
+		return NowIsPressed;
 	} else {
 		bp->ButRawStat = NowIsNotPressed;
 
-		return 0;
+		return NowIsNotPressed;
 	}
 }
 
@@ -41,7 +41,7 @@ uint8_t EASYBUT_getPinState(but_pin_s *bp) {
  * @param  current pin's state
  * @retval None
  */
-void EASYBUT_setPrevState(but_pin_s *bp, uint8_t state) {
+void EASYBUT_setPrevState(but_pin_s *bp, butraw_t state) {
 	bp->ButPrevStat = state;
 }
 
@@ -50,7 +50,7 @@ void EASYBUT_setPrevState(but_pin_s *bp, uint8_t state) {
  * @param  pointer to structure
  * @retval true - was pressed, false - was not pressed
  */
-uint8_t EASYBUT_getPrevState(but_pin_s *bp) {
+butraw_t EASYBUT_getPrevState(but_pin_s *bp) {
 	return bp->ButPrevStat;
 }
 
@@ -59,13 +59,16 @@ uint8_t EASYBUT_getPrevState(but_pin_s *bp) {
  * @param  pointer to structure
  * @retval None
  */
-void EASYBUT_setButPressed(but_pin_s *bp) {
-	bp->ButStat = BUT_PRESSED;
+void EASYBUT_setShortPress(but_pin_s *bp) {
+	bp->ButStat = BUT_SHORT_PRESS;
 }
 
+void EASYBUT_setLongPress(but_pin_s *bp) {
+	bp->ButStat = BUT_LONG_PRESS;
+}
 
-void EASYBUT_setButNotPressed(but_pin_s *bp) {
-	bp->ButStat = BUT_NOTPRESSED;
+void EASYBUT_setNotPress(but_pin_s *bp) {
+	bp->ButStat = BUT_NOT_PRESSED;
 }
 
 /**
@@ -74,7 +77,7 @@ void EASYBUT_setButNotPressed(but_pin_s *bp) {
  * @param  counter value
  * @retval None
  */
-void EASYBUT_setCounter(but_pin_s *bp, uint8_t cnt) {
+void EASYBUT_setCounter(but_pin_s *bp, uint16_t cnt) {
 	bp->ButCounter = cnt;
 }
 
@@ -103,31 +106,37 @@ uint8_t EASYBUT_getPrevStat(but_pin_s *bp) {
 }
 
 /**
- * @brief  Check structure press flasg and reset if, if it true
+ * @brief  Check structure status flag
  * @param  pointer to structure
- * @retval true if pressed, false if not pressed
+ * @retval short/long/no press
  */
-uint8_t EASYBUT_getStatData(but_pin_s *bp) {
-	if (bp->ButStat == BUT_PRESSED) {
-		bp->ButStat = BUT_NOTPRESSED;
+butstat_t EASYBUT_getStatData(but_pin_s *bp) {
 
-		return 1;
-	} else {
-		return 0;
-	}
+	return bp->ButStat;
 }
 
 /**
  * @brief  Return handled button state (without bouncing)
  * @param  None
- * @retval true - pressed, false - not pressed
+ * @retval short/long/no press
  */
-uint8_t EASYBUT_getButtonState(butname_t butname) {
-	if (EASYBUT_getStatData(&ButPin[butname])) {
+uint8_t EASYBUT_getButtonState(butname_t butname, butstat_t butstat) {
+
+	if(EASYBUT_getStatData(&ButPin[butname]) == BUT_SHORT_PRESS && (butstat == BUT_SHORT_PRESS)){
+		ButPin[butname].ButStat = BUT_POLLED; /* Avoid repeat action */
 		return 1;
-	} else {
-		return 0;
 	}
+
+	if(EASYBUT_getStatData(&ButPin[butname]) == BUT_LONG_PRESS && (butstat == BUT_LONG_PRESS)){
+		ButPin[butname].ButStat = BUT_POLLED; /* Avoid repeat action */
+		return 1;
+	}
+
+	if(EASYBUT_getStatData(&ButPin[butname]) == BUT_DOWN && (butstat == BUT_DOWN)){
+		return 1;
+	}
+
+	return 0;
 }
 
 /**
@@ -138,37 +147,74 @@ uint8_t EASYBUT_getButtonState(butname_t butname) {
 void EASYBUT_Handler(void) {
 
 	for (uint8_t i = 0; i < PIN_QUANTITY; i++) {
-		uint8_t curstate = EASYBUT_getPinState(&ButPin[i]); // read gpio raw value
 
-		if (curstate != EASYBUT_getPrevState(&ButPin[i])) {
+
+		if(EASYBUT_getPinState(&ButPin[i]) == NowIsPressed){
+			ButPin[i].ButStat = BUT_DOWN;
+		}
+
+		if (EASYBUT_getPinState(&ButPin[i]) != EASYBUT_getPrevState(&ButPin[i])) {
 
 			uint16_t counter = EASYBUT_getCounter(&ButPin[i]);
 
-			if (counter < EASYBUT_DEBOUNCE_TIME) {
+			if (counter <= EASYBUT_SHORT_PRESS+1) {
 				counter++;
 			}
 
-			if (counter >= EASYBUT_DEBOUNCE_TIME) {
+/************* SHORT PRESS *****************/
+			if (counter >= EASYBUT_SHORT_PRESS && counter < EASYBUT_LONG_PRESS) {
 
-				EASYBUT_setPrevState(&ButPin[i], curstate);
+				EASYBUT_setPrevState(&ButPin[i], EASYBUT_getPinState(&ButPin[i]));
 
-				/* If the button still pressed (not released), tell main so */
-				if (EASYBUT_getPinState(&ButPin[i]) != 0) {
-					EASYBUT_setButPressed(&ButPin[i]);
-					EASYBUT_setCounter(&ButPin[i], 0);
+				if (EASYBUT_getPinState(&ButPin[i]) == NowIsPressed) { /* If still pressed */
+
+					EASYBUT_setShortPress(&ButPin[i]); // Set SHORT press flag
+
+					ButPin[i].ButLongFlag = 1; // Allow to count
 				}
 			}
+/*****************************************/
 
 			EASYBUT_setCounter(&ButPin[i], counter);
 
 		} else {
 
-			EASYBUT_setButNotPressed(&ButPin[i]);
-			EASYBUT_setCounter(&ButPin[i], 0);
+				if(EASYBUT_getPinState(&ButPin[i]) == NowIsPressed && ButPin[i].ButLongFlag){ /* Still pressed and flag short_press was setter */
+
+					volatile uint16_t counter = EASYBUT_getCounter(&ButPin[i]);
+
+					if (counter <= EASYBUT_LONG_PRESS+1) {
+						counter++;
+					}
+
+			/************* LONG PRESS *****************/
+						if (counter >= EASYBUT_LONG_PRESS) {
+
+							ButPin[i].ButLongFlag = 0;
+
+							if (EASYBUT_getPinState(&ButPin[i]) == NowIsPressed) { /* If still pressed */
+
+								EASYBUT_setLongPress(&ButPin[i]); // Set LONG press flag
+
+								counter = 0;
+							}
+						}
+			/*****************************************/
+
+						EASYBUT_setCounter(&ButPin[i], counter);
+
+
+				}
+				if(EASYBUT_getPinState(&ButPin[i]) == NowIsNotPressed){ /* Released */
+					ButPin[i].ButLongFlag = 0;
+					EASYBUT_setNotPress(&ButPin[i]);
+					EASYBUT_setCounter(&ButPin[i], 0);
+				}
+
+
+
+
 		}
-
-//		ButPin[i]->ButPin
-
 	}
 
 }
