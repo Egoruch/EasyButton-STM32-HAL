@@ -1,12 +1,12 @@
 # EasyButton-STM32-HAL
 
 Simple library to handle buttons with convenient usage pin's labels (set in Cube) and HAL.
-![Config pin as input and set gpio label](/Images/easybutton_library)
+![Config pin as input and set gpio label](/Images/easybutton_library.svg)
 # How to use?
 
  1. Add *easybutton.c* to **Src** and *easybutton.h* to **Inc**
 ![add .c and h. file](/Images/src_inc_add.png)
- 2.  Configure required pin as **GPIO_Input** (left click) and set **label** (right click). Must be pull-upped and short on ground!
+ 2. Configure required pin as **GPIO_Input** (left click) and set **label** (right click). Must be pull-upped and short on ground!
 ![Config pin as input and set gpio label](/Images/gpio_input_user_label.png)
 I have three pins for three buttons:
 ![Configured pins for buttons](/Images/three_buttons_cube.png)
