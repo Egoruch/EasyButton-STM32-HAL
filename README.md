@@ -16,7 +16,7 @@ I have three pins for three buttons:
 #include "easybut.h"
 /* USER CODE END Includes */
 ```
- 4. Open *easybut.h* (right clock -> Open Decralation) and write down unique button's names.
+ 4. Open *main.h* (right clock -> Open Decralation) and write enum with unique button's names.
 ```
 typedef enum ButtonName
 {
