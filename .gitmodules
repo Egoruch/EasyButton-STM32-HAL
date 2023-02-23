@@ -1,0 +1,3 @@
+[submodule "Libraries/EasyButton-LIB"]
+	path = Libraries/EasyButton-LIB
+	url = https://github.com/Egoruch/EasyButton-LIB.git
