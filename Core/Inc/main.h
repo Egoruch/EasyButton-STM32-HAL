@@ -86,6 +86,22 @@ void Error_Handler(void);
 #define BUZZER_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
+/* Enumerations BEGIN */
+
+typedef enum ButtonName
+{
+	/* SET BUTTON'S NAMES ↓: */
+	/*_____________________*/
+	BUT_SA2,
+	BUT_SA1,
+	BUT_WKUP,
+	/*_____________________*/
+
+	BUT_QUANTITY /* ← DON'T TOUCH IT! (uses to count buttons) */
+}butname_t;
+
+/* Enumerations END */
+
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
